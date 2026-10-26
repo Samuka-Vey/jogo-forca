@@ -33,7 +33,7 @@ export function interpretar(linha) {
 }
 
 // TCP é fluxo de bytes: o buffer reconstrói as mensagens usando o '\n'
-// protocolo.js
+// Exemplo: "LETRA a\nLETRA b\n" → "LETRA a" e "LETRA b"
 const MAX_BUFFER = 1024;
 
 export function criarLeitor(aoReceberLinha, aoEstourar) {

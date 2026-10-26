@@ -220,11 +220,14 @@ Captura feita com filtro `tcp.port == 5000` (interface de loopback para teste lo
 
 | Evidência | O que mostra | Arquivo |
 |---|---|---|
-| Handshake | Pacotes `SYN`, `SYN-ACK`, `ACK` estabelecendo a conexão | _inserir print_ |
-| Dados | Pacotes `PSH, ACK` com `ENTRAR Ana`, `LETRA E` e `ESTADO ...` em texto claro | _inserir print_ |
-| Follow TCP Stream | Conversa completa cliente-servidor | _inserir print_ |
-| Encerramento | `FIN` (com `SAIR`) ou `RST` (fechando o terminal à força) | _inserir print_ |
-| Captura completa | Arquivo `.pcapng` | `captura.pcapng` |
+| Handshake de 3 vias | Pacotes `SYN`, `SYN-ACK` e `ACK` estabelecendo a conexão TCP | [3_vias.png](wire/3_vias.png) |
+| Comando `ENTRAR` | Pacote `PSH, ACK` com `ENTRAR Dolinho` em texto claro | [entrar.png](wire/entrar.png) |
+| Comando `LETRA` | Pacote `PSH, ACK` com `LETRA g` em texto claro | [letra.png](wire/letra.png) |
+| Resposta `ESTADO` | Pacote `PSH, ACK` com `ESTADO ____ 0 6` (máscara inicial, nenhum erro) | [estado.png](wire/estado.png) |
+| `ESTADO` após letra errada | Pacote `PSH, ACK` com `ESTADO ____ 1 6` (erros incrementados) | [estado_letra_errada.png](wire/estado_letra_errada.png) |
+| Erro de inatividade | Pacote `PSH, ACK` com `ERRO 103 Inatividade, encerrando` | [erro_inatividade.png](wire/erro_inatividade.png) |
+| Encerramento após 60 s | `FIN, ACK` do servidor fechando a conexão após o timeout de inatividade | [60s_inatividade_finaliza.png](wire/60s_inatividade_finaliza.png) |
+| Captura completa | Arquivo `.pcapng` da conversa cliente-servidor (Follow TCP Stream) | [completo.pcapng](wire/completo.pcapng) |
 
 
 ## 10. Respostas às perguntas do projeto
