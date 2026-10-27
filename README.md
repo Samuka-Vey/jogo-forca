@@ -7,7 +7,7 @@ Aplicação cliente-servidor desenvolvida em Node.js com **Programação em Sock
 | Nome | Matrícula |
 |---|---|
 |Marcos Samuel Cornelio Barros | 2025027554 |
-
+|Bruno Vinicius dos Reis Souza | 2025034595 |
 ## 1. Descrição da aplicação
 
 Jogo da forca em rede. O **servidor** sorteia uma palavra e guarda o estado da rodada de cada jogador. O **cliente** envia letras e recebe a palavra mascarada (ex.: `_ E _ E`) e o número de erros. A palavra secreta nunca é enviada ao cliente durante a rodada: só é revelada ao final (`VITORIA` ou `DERROTA`).
