@@ -57,15 +57,38 @@ Cada conexão no servidor possui seu próprio socket e seu próprio estado, o qu
 
 ### O que aconteceria com UDP?
 
-| Problema | Consequência |
-|---|---|
-| Perda de `LETRA` | O jogador ficaria esperando uma resposta que nunca chega |
-| Perda de `ESTADO` | A tela ficaria desatualizada em relação ao servidor |
-| Reordenação | Erros e máscara poderiam aparecer inconsistentes |
-| Duplicação | Uma letra poderia ser processada duas vezes |
-| Sem conexão | O servidor teria de identificar jogadores por IP:porta e detectar quedas com *heartbeats* e timeouts |
+O UDP poderia ser utilizado para implementar o jogo, mas algumas características exigiriam cuidados adicionais na aplicação.
 
-Seria necessário implementar na aplicação ACK, numeração de sequência, retransmissão e detecção de queda, ou seja, reimplementar o que o TCP já oferece, sem ganho real para esta aplicação.
+| Característica | Consequência para o jogo |
+|---|---|
+| Perda de datagramas | Uma mensagem `LETRA` poderia não chegar ao servidor, ou uma resposta `ESTADO` poderia não chegar ao cliente, deixando a tela desatualizada. |
+| Falta de garantia de ordem | Mensagens poderiam chegar fora da ordem de envio, causando inconsistências entre as ações do jogador e o estado exibido. |
+| Possibilidade de duplicação | Uma mensagem poderia ser recebida mais de uma vez, exigindo cuidados para evitar o processamento duplicado de uma jogada. |
+| Ausência de conexão | O UDP não realiza o *three-way handshake* do TCP. O servidor precisa identificar cada jogador pelo endereço IP e pela porta de origem do datagrama, além de controlar sessões e timeouts. |
+| Ausência de detecção automática de desconexão | O servidor não recebe um evento de encerramento de conexão como no TCP. Para detectar clientes inativos, seria necessário implementar timeouts ou mensagens periódicas (*heartbeats*). |
+| Servidor desligado ou porta indisponível | Se o cliente enviar um datagrama para uma porta UDP sem um serviço ativo, o sistema operacional poderá retornar uma mensagem ICMP indicando que a porta está inacessível. |
+
+### Observação prática: UDP e ICMP no Wireshark
+
+Durante os testes, ao encerrar o servidor UDP e executar uma nova tentativa de comunicação pelo cliente, foi possível observar uma mensagem relacionada ao protocolo ICMP no Wireshark.
+
+Isso ocorre porque, ao receber um datagrama destinado a uma porta UDP sem um processo escutando, o sistema operacional pode gerar uma mensagem **ICMP Destination Unreachable — Port Unreachable** (IPv4, tipo 3, código 3). Essa mensagem informa que não foi possível entregar o datagrama à aplicação de destino.
+
+O ICMP não é uma resposta do protocolo UDP propriamente dito. Ele é utilizado pela camada de rede para comunicar condições de erro. Esse comportamento demonstra que, embora o UDP não garanta a entrega dos dados, outros mecanismos da rede podem informar determinadas falhas de entrega.
+
+No Wireshark, é possível observar esse comportamento utilizando o filtro:
+
+`udp.port == 5000 || icmp`
+
+### Diferença na transmissão dos dados
+
+No UDP, cada envio corresponde a um **datagrama**, que preserva os limites da mensagem enviada pela aplicação. Por exemplo, uma mensagem como `LETRA a` pode ser transmitida em um único datagrama UDP.
+
+Já o TCP fornece um fluxo contínuo de bytes, sem preservar os limites das mensagens enviadas pela aplicação. Por isso, neste projeto TCP, foi necessário utilizar um buffer e o delimitador `\n` para reconstruir as mensagens recebidas.
+
+Dessa forma, ao utilizar UDP, seria possível simplificar o tratamento dos limites das mensagens, mas seria necessário implementar mecanismos adicionais para lidar com perdas, duplicações, ordenação e identificação das sessões.
+
+Para este jogo, o TCP continua sendo a escolha mais adequada, pois oferece entrega confiável e ordenada dos dados, sem exigir que a aplicação implemente esses mecanismos de transporte.
 
 ## 4. Endereço IP e porta
 
